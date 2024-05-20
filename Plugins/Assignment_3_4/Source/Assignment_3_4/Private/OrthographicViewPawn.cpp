@@ -111,7 +111,7 @@ void AOrthographicViewPawn::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 		if (const APlayerController* PlayerController = Cast<APlayerController>(Controller)) {
 			if (UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer())) {
-				//SubSystem->ClearAllMappings();
+				SubSystem->ClearAllMappings();
 				SubSystem->AddMappingContext(IMC, 0);
 			}
 		}

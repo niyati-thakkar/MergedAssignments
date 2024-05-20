@@ -13,6 +13,7 @@
 #include "SelectionWidget.h"
 #include "WallGenerator.h"
 #include "EnhancedInputSubsystems.h"
+#include "Engine/DataTable.h"
 #include "InteractiveArchController.generated.h"
 
 /**
@@ -22,7 +23,25 @@
 
 DECLARE_DELEGATE_TwoParams(PrintLog, const FString& Message, const FLinearColor& ColorOpacity)
 
+UENUM()
+enum class EViewPawnType : uint8 {
+	PerspectiveView UMETA(DisplayName = "Perspective View"),
+	IsometricView UMETA(DisplayName = "Isometric View"),
+	OrthographicView UMETA(DisplayName = "Orthographic View")
+};
 
+USTRUCT(BlueprintType)
+struct FViewPawnDataTable : public FTableRowBase {
+
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EViewPawnType PawnType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<APawn> PawnClass;
+
+};
 UCLASS()
 class ASSIGNMENT_3_4_API AInteractiveArchController : public APlayerController
 {
@@ -30,6 +49,8 @@ class ASSIGNMENT_3_4_API AInteractiveArchController : public APlayerController
 
 
 public:
+
+	AInteractiveArchController();
 	UFUNCTION()
 	void SpawnMesh(const FMeshData& MeshData);
 
@@ -65,6 +86,7 @@ public:
 	void GetMouseClick(const FInputActionValue& InputAction);
 
 	void BeginPlay() override;
+	void AddMappings();
 
 	UFUNCTION(BlueprintCallable)
 	void HideUI();
@@ -99,5 +121,19 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	UDisplayWidget* WallWidget;
 
-	int32 Index;
+	int32 Index = 0;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	class UDataTable* PawnTypeDataTable{};
+
+	void SetEnhancedInputToggle();
+
+	void SpawnPawn();
+	void Toggle();
+	int32 Size = 3;
+
+	APawn* CurrentPawn;
+	FVector CurrentPawnLocation;
+	FRotator CurrentPawnRotation;
+	TArray<FViewPawnDataTable*> TypesOfPawns;
 };

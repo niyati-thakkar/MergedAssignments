@@ -41,7 +41,6 @@ void AIsometricViewPawn::BeginPlay()
 void AIsometricViewPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-    UpdateLastHitLocation();
 
 }
 
@@ -68,7 +67,8 @@ void AIsometricViewPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
         if (const APlayerController* PlayerController = Cast<APlayerController>(Controller)) {
             if (UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer())) {
-                SubSystem->AddMappingContext(IMC, 0);
+                SubSystem->ClearAllMappings();
+            	SubSystem->AddMappingContext(IMC, 0);
             }
         }
         IsometricView();
@@ -133,25 +133,6 @@ void AIsometricViewPawn::IsometricView()
 }
 
 
-void AIsometricViewPawn::UpdateLastHitLocation()
-{
-	FHitResult HitResult;
-	FVector Start = GetActorLocation();
-	FVector End = Start + (GetActorForwardVector() * 10000.0f); // Raycast distance
-
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-
-	if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params))
-	{
-		LastHitLocation = HitResult.Location;
-		bHasHitLocation = true;
-	}
-	else
-	{
-		bHasHitLocation = false;
-	}
-}
 void AIsometricViewPawn::ClockwiseRotation(const FInputActionValue& MoveAction)
 {
 

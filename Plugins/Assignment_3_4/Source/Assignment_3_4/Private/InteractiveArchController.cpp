@@ -5,7 +5,7 @@
 
 void AInteractiveArchController::BeginPlay() {
 	Super::BeginPlay();
-
+	SpawnPawn();
 	if (SelectionWidgetClass) {
 		SelectionWidget = CreateWidget<USelectionWidget>(this, SelectionWidgetClass);
 		if (SelectionWidget) {
@@ -29,14 +29,10 @@ void AInteractiveArchController::BeginPlay() {
 	DelegateLog.Execute(FString("hello"), FColor::White);
 	UserWall = GetWorld()->SpawnActor<AWallGenerator>();
 
-	Index = 0;
 }
 
-
-
-void AInteractiveArchController::SetupInputComponent()
+void AInteractiveArchController::AddMappings()
 {
-	Super::SetupInputComponent();
 	if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InputComponent)) {
 		UInputMappingContext* IMC = NewObject<UInputMappingContext>();
 
@@ -88,6 +84,12 @@ void AInteractiveArchController::SetupInputComponent()
 	}
 }
 
+void AInteractiveArchController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+	AddMappings();
+}
+
 void AInteractiveArchController::ToggleController(const FInputActionValue& InputAction)
 {
 
@@ -104,6 +106,26 @@ void AInteractiveArchController::ToggleController(const FInputActionValue& Input
 	}
 }
 
+
+AInteractiveArchController::AInteractiveArchController()
+{
+	//PawnTypeDataTable = nullptr;
+	static ConstructorHelpers::FObjectFinder<UDataTable> PawnTypeDT(TEXT("/Assignment_3_4/ViewPawn/DT_ViewPawnDataTable.DT_ViewPawnDataTable"));
+	if (PawnTypeDT.Succeeded())
+	{
+		const FString ContextString{ TEXT("View Pawn Type") };
+		PawnTypeDataTable = PawnTypeDT.Object;
+		PawnTypeDataTable->GetAllRows<FViewPawnDataTable>(ContextString, TypesOfPawns);
+		CurrentPawnLocation = FVector{ 0, 0, 100 };
+		CurrentPawnRotation = FRotator{ 0 };
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("got Data table"));
+	}else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("got Data table"));
+	}
+	Index = 1;
+	Size = TypesOfPawns.Num();
+}
 
 void AInteractiveArchController::SpawnMesh(const FMeshData& MeshData)
 {
@@ -123,6 +145,7 @@ void AInteractiveArchController::SpawnMesh(const FMeshData& MeshData)
 
 		}
 	}
+	
 	SelectionWidget->MeshScrollBox->SetVisibility(ESlateVisibility::Visible);
 	SelectionWidget->MaterialScrollBox->SetVisibility(ESlateVisibility::Visible);
 	SelectionWidget->TextureScrollBox->SetVisibility(ESlateVisibility::Visible);
@@ -218,6 +241,10 @@ void AInteractiveArchController::GetMouseClick(const FInputActionValue& InputAct
 							SelectionWidget->MeshScrollBox->SetVisibility(ESlateVisibility::Visible);
 							SelectionWidget->MaterialScrollBox->SetVisibility(ESlateVisibility::Visible);
 							SelectionWidget->TextureScrollBox->SetVisibility(ESlateVisibility::Visible);
+
+							auto loc = ArchMeshActor->GetActorLocation();
+							loc.Z = 100;
+							GetPawn()->SetActorLocation(loc);
 						}
 						else {
 							SelectionWidget->MeshScrollBox->SetVisibility(ESlateVisibility::Visible);
@@ -303,7 +330,7 @@ void AInteractiveArchController::SpawnPawn() {
 	if (PawnTypeDataTable) {
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("got Data table"));
 
-		FPawnDataTable* CurrentPawnType = TypesOfPawns[Index];
+		FViewPawnDataTable* CurrentPawnType = TypesOfPawns[Index];
 		if (CurrentPawnType) {
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("got struct"));
 			if (UWorld* CurrentWorld = GetWorld()) {
@@ -332,28 +359,14 @@ void AInteractiveArchController::SpawnPawn() {
 					if (tempPawn->GetController())
 						GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Purple, TEXT("Possessed Pawn"));
 					CurrentPawn = tempPawn;
-					if (CurrentPawnType->PawnType == EPawnType::TopDown) {
-						bShowMouseCursor = true;
-						/*bEnableClickEvents = true;
-						bEnableTouchEvents = true;
-						bEnableMouseOverEvents = true;
-						DefaultMouseCursor = EMouseCursor::Default;
-						DefaultClickTraceChannel = ECollisionChannel::ECC_Visibility;*/
-						//DisplayAttributes(Cast<ABaseCharacter>(SpawnedPawn)->PawnAttributeAsset);
-					}
-					else {
-						bShowMouseCursor = false;
-						/*bEnableClickEvents = false;
-						bEnableTouchEvents = false;
-						bEnableMouseOverEvents = false;*/
-						//DisplayAttributes(Cast<ABaseCharacter>(SpawnedPawn)->PawnAttributeAsset);
-					}
+					
 					
 				}
 			}
 
 		}
 	}
+	AddMappings();
 	Toggle();
 
 
@@ -362,7 +375,22 @@ void AInteractiveArchController::SpawnPawn() {
 void AInteractiveArchController::Toggle() {
 	Index = ((Index + 1) % Size);
 }
-void AInteractiveArchController::BeginPlay()
-{
-	//SpawnPawn();
+
+void AInteractiveArchController::SetEnhancedInputToggle() {
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent)) {
+		UInputMappingContext* InputMappingContext = NewObject<UInputMappingContext>();
+		UInputAction* SwapAction = NewObject<UInputAction>();
+		FEnhancedActionKeyMapping& PKeyPressMappedContext = InputMappingContext->MapKey(SwapAction, EKeys::P);
+
+		if (SwapAction) {
+			EnhancedInputComponent->BindAction(SwapAction, ETriggerEvent::Completed, this, &AInteractiveArchController::SpawnPawn);
+		}
+		if (UEnhancedInputLocalPlayerSubsystem* LocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer())) {
+			if (LocalPlayerSubsystem) {
+				LocalPlayerSubsystem->ClearAllMappings();
+				LocalPlayerSubsystem->AddMappingContext(InputMappingContext, 0);
+			}
+
+		}
+	}
 }

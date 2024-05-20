@@ -108,7 +108,7 @@ void APerspectiveViewPawn::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 		if (const APlayerController* PlayerController = Cast<APlayerController>(Controller)) {
 			if (UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer())) {
-				//SubSystem->ClearAllMappings();
+				SubSystem->ClearAllMappings();
 				SubSystem->AddMappingContext(InputMappingContext, 0);
 			}
 		}
