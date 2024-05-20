@@ -1,0 +1,51 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Pawn.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "EnhancedInputComponent.h"
+#include "GameFramework/FloatingPawnMovement.h"
+#include "Camera/CameraComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "InputMappingContext.h"
+#include "PerspectiveViewPawn.generated.h"
+
+UCLASS()
+class ASSIGNMENT_3_4_API APerspectiveViewPawn : public APawn
+{
+	GENERATED_BODY()
+
+public:
+	// Sets default values for this pawn's properties
+	APerspectiveViewPawn();
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	void Look(const FInputActionValue& LookAction);
+
+	void Move(const FInputActionValue& LookAction);
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Defaults)
+	UCapsuleComponent* CapsuleComponent;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Defaults)
+	USpringArmComponent* SpringArmComponent;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Defaults)
+	UCameraComponent* Camera;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Defaults)
+	UFloatingPawnMovement* FloatingPawnMovement;
+};
