@@ -21,11 +21,12 @@ AWallGenerator::AWallGenerator()
 		SourceMesh = StaticMeshAsset.Object;
 
 		// Set the material
-		static ConstructorHelpers::FObjectFinder<UMaterialInstance> MaterialAsset(TEXT("/Game/StarterContent/Materials/M_Basic_Wall.M_Basic_Wall"));
-		if (MaterialAsset.Succeeded()){
+
+		static ConstructorHelpers::FObjectFinder<UMaterial> MaterialAsset(TEXT("/Game/StarterContent/Materials/M_Basic_Wall"));
+		if (MaterialAsset.Succeeded()) {
 			WallMaterial = MaterialAsset.Object;
-			if (WallMaterial)
-			{
+			if (WallMaterial != nullptr) { // Check if the material is valid before using it
+				GEngine->AddOnScreenDebugMessage(-1, 5.0, FColor::Blue, TEXT("mesh material loaded"));
 				SourceMesh->SetMaterial(0, WallMaterial);
 			}
 		}

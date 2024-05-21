@@ -79,11 +79,13 @@ public:
 	void SetupInputComponent() override;
 
 
-	UFUNCTION()
-	void ToggleController(const FInputActionValue& InputAction);
+	UFUNCTION(BlueprintCallable)
+	void ToggleController();
 
 	UFUNCTION()
 	void GetMouseClick(const FInputActionValue& InputAction);
+	void SpawnActors(FHitResult HitResult);
+	void GenerateWall(FHitResult HitResult);
 
 	void BeginPlay() override;
 	void AddMappings();
@@ -121,16 +123,18 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	UDisplayWidget* WallWidget;
 
-	int32 Index = 0;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Animation, meta = (AllowPrivateAccess = "true"))
 	class UDataTable* PawnTypeDataTable{};
 
 	void SetEnhancedInputToggle();
 
+	UFUNCTION(BlueprintCallable)
 	void SpawnPawn();
-	void Toggle();
-	int32 Size = 3;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite);
+
+
+	int32 Index;
 
 	APawn* CurrentPawn;
 	FVector CurrentPawnLocation;

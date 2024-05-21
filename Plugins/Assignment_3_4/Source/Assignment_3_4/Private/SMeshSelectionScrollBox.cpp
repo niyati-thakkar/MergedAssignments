@@ -52,9 +52,9 @@ void SMeshSelectionScrollBox::RefreshContent()
 				];
 		}
 
-		
-		
-		
+
+
+
 	}
 }
 
@@ -127,7 +127,7 @@ void SMeshSelectionScrollBox::DisplayTextures(TArray<FTextureData> DataArray)
 			}
 		}
 	}
-	
+
 }
 
 
@@ -197,12 +197,12 @@ void SMeshSelectionScrollBox::DisplayMaterials(TArray<FMaterialData> DataArray)
 								TextBlockBorder.ToSharedRef()
 							]
 					];
-			
+
 			}
 		}
 	}
 }
-	
+
 
 
 
@@ -274,7 +274,7 @@ void SMeshSelectionScrollBox::DisplayMeshes(TArray<FMeshData> DataArray)
 			}
 		}
 	}
-	
+
 }
 
 

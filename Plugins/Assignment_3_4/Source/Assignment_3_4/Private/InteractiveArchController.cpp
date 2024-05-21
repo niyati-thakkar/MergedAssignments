@@ -75,6 +75,8 @@ void AInteractiveArchController::AddMappings()
 		{
 			if (UEnhancedInputLocalPlayerSubsystem* SubSystem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
 			{
+				//SubSystem->ClearAllMappings();
+
 				// Add the input mapping context to the local player subsystem
 				SubSystem->AddMappingContext(IMC, 0);
 			}
@@ -90,7 +92,7 @@ void AInteractiveArchController::SetupInputComponent()
 	AddMappings();
 }
 
-void AInteractiveArchController::ToggleController(const FInputActionValue& InputAction)
+void AInteractiveArchController::ToggleController()
 {
 
 	bIsWallGenerator = !bIsWallGenerator;
@@ -119,12 +121,9 @@ AInteractiveArchController::AInteractiveArchController()
 		CurrentPawnLocation = FVector{ 0, 0, 100 };
 		CurrentPawnRotation = FRotator{ 0 };
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("got Data table"));
-	}else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("got Data table"));
 	}
-	Index = 1;
-	Size = TypesOfPawns.Num();
+
+	
 }
 
 void AInteractiveArchController::SpawnMesh(const FMeshData& MeshData)
@@ -215,42 +214,10 @@ void AInteractiveArchController::GetMouseClick(const FInputActionValue& InputAct
 
 					if(bIsWallGenerator)
 					{
-						
-						if (HitResult.IsValidBlockingHit())
-						{
-							// Print the location to the screen
-							FVector Location = HitResult.Location;
-							GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Mouse Click Location: X=%f, Y=%f, Z=%f"), Location.X, Location.Y, Location.Z));
-
-							UserWall->GenerateSplineMesh(Location);
-							DelegateLog.Execute(FString("Got Location"), FColor::Yellow);
-						}
-						else
-						{
-							DelegateLog.Execute(FString("No valid location found under the mouse cursor"), FColor::Yellow);
-						}
+						GenerateWall(HitResult);
 					}else
 					{
-						LastHitLocation = HitResult.Location;
-						if (SelectionWidget && !SelectionWidget->IsInViewport()) {
-							SelectionWidget->AddToViewport();
-							SelectionWidget->InitializeWidget(MeshDataAsset);
-						}
-						ArchMeshActor = Cast<AArchMeshActor>(HitResult.GetActor());
-						if (ArchMeshActor) {
-							SelectionWidget->MeshScrollBox->SetVisibility(ESlateVisibility::Visible);
-							SelectionWidget->MaterialScrollBox->SetVisibility(ESlateVisibility::Visible);
-							SelectionWidget->TextureScrollBox->SetVisibility(ESlateVisibility::Visible);
-
-							auto loc = ArchMeshActor->GetActorLocation();
-							loc.Z = 100;
-							GetPawn()->SetActorLocation(loc);
-						}
-						else {
-							SelectionWidget->MeshScrollBox->SetVisibility(ESlateVisibility::Visible);
-							SelectionWidget->MaterialScrollBox->SetVisibility(ESlateVisibility::Hidden);
-							SelectionWidget->TextureScrollBox->SetVisibility(ESlateVisibility::Hidden);
-						}
+						SpawnActors(HitResult);
 					}
 					
 				}
@@ -259,7 +226,45 @@ void AInteractiveArchController::GetMouseClick(const FInputActionValue& InputAct
 	}
 }
 
+void AInteractiveArchController::GenerateWall(FHitResult HitResult)
+{
+	if (HitResult.IsValidBlockingHit())
+	{
+		// Print the location to the screen
+		FVector Location = HitResult.Location;
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Mouse Click Location: X=%f, Y=%f, Z=%f"), Location.X, Location.Y, Location.Z));
 
+		UserWall->GenerateSplineMesh(Location);
+		DelegateLog.Execute(FString("Got Location"), FColor::Yellow);
+	}
+	else
+	{
+		DelegateLog.Execute(FString("No valid location found under the mouse cursor"), FColor::Yellow);
+	}
+}
+void AInteractiveArchController::SpawnActors(FHitResult HitResult)
+{
+	LastHitLocation = HitResult.Location;
+	if (SelectionWidget && !SelectionWidget->IsInViewport()) {
+		SelectionWidget->AddToViewport();
+		SelectionWidget->InitializeWidget(MeshDataAsset);
+	}
+	ArchMeshActor = Cast<AArchMeshActor>(HitResult.GetActor());
+	if (ArchMeshActor) {
+		SelectionWidget->MeshScrollBox->SetVisibility(ESlateVisibility::Visible);
+		SelectionWidget->MaterialScrollBox->SetVisibility(ESlateVisibility::Visible);
+		SelectionWidget->TextureScrollBox->SetVisibility(ESlateVisibility::Visible);
+
+		auto loc = ArchMeshActor->GetActorLocation();
+		loc.Z = 500;
+		GetPawn()->SetActorLocation(loc);
+	}
+	else {
+		SelectionWidget->MeshScrollBox->SetVisibility(ESlateVisibility::Visible);
+		SelectionWidget->MaterialScrollBox->SetVisibility(ESlateVisibility::Hidden);
+		SelectionWidget->TextureScrollBox->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
 
 void AInteractiveArchController::HideUI()
 {
@@ -332,7 +337,7 @@ void AInteractiveArchController::SpawnPawn() {
 
 		FViewPawnDataTable* CurrentPawnType = TypesOfPawns[Index];
 		if (CurrentPawnType) {
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("got struct"));
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("got struct"));
 			if (UWorld* CurrentWorld = GetWorld()) {
 				/*if(CurrentPawnType->PawnType == EPawnType::FirstPerson)
 					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("1"));
@@ -347,15 +352,16 @@ void AInteractiveArchController::SpawnPawn() {
 					CurrentPawn->Destroy();
 					CurrentPawn = nullptr;
 				}
+				
 				FActorSpawnParameters SpawnParameter;
 				SpawnParameter.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 				APawn* tempPawn = CurrentWorld->SpawnActor<APawn>(CurrentPawnType->PawnClass, CurrentPawnLocation, CurrentPawnRotation, SpawnParameter);
-				SetEnhancedInputToggle();
+				
 				if (tempPawn != nullptr) {
 					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Purple, TEXT("Spawned Pawn"));
 
 					Possess(tempPawn);
-
+					AddMappings();
 					if (tempPawn->GetController())
 						GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Purple, TEXT("Possessed Pawn"));
 					CurrentPawn = tempPawn;
@@ -366,31 +372,9 @@ void AInteractiveArchController::SpawnPawn() {
 
 		}
 	}
-	AddMappings();
-	Toggle();
+	
 
 
 }
 
-void AInteractiveArchController::Toggle() {
-	Index = ((Index + 1) % Size);
-}
 
-void AInteractiveArchController::SetEnhancedInputToggle() {
-	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent)) {
-		UInputMappingContext* InputMappingContext = NewObject<UInputMappingContext>();
-		UInputAction* SwapAction = NewObject<UInputAction>();
-		FEnhancedActionKeyMapping& PKeyPressMappedContext = InputMappingContext->MapKey(SwapAction, EKeys::P);
-
-		if (SwapAction) {
-			EnhancedInputComponent->BindAction(SwapAction, ETriggerEvent::Completed, this, &AInteractiveArchController::SpawnPawn);
-		}
-		if (UEnhancedInputLocalPlayerSubsystem* LocalPlayerSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer())) {
-			if (LocalPlayerSubsystem) {
-				LocalPlayerSubsystem->ClearAllMappings();
-				LocalPlayerSubsystem->AddMappingContext(InputMappingContext, 0);
-			}
-
-		}
-	}
-}
