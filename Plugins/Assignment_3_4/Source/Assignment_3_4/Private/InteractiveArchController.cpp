@@ -256,7 +256,8 @@ void AInteractiveArchController::SpawnActors(FHitResult HitResult)
 		SelectionWidget->TextureScrollBox->SetVisibility(ESlateVisibility::Visible);
 
 		auto loc = ArchMeshActor->GetActorLocation();
-		loc.Z = 500;
+		//loc.X -= 200;
+		//loc.X -= 50;
 		GetPawn()->SetActorLocation(loc);
 	}
 	else {

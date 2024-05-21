@@ -26,7 +26,7 @@ AWallGenerator::AWallGenerator()
 		if (MaterialAsset.Succeeded()) {
 			WallMaterial = MaterialAsset.Object;
 			if (WallMaterial != nullptr) { // Check if the material is valid before using it
-				GEngine->AddOnScreenDebugMessage(-1, 5.0, FColor::Blue, TEXT("mesh material loaded"));
+				//GEngine->AddOnScreenDebugMessage(-1, 5.0, FColor::Blue, TEXT("mesh material loaded"));
 				SourceMesh->SetMaterial(0, WallMaterial);
 			}
 		}

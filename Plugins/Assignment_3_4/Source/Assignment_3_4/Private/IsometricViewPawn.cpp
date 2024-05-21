@@ -83,47 +83,47 @@ void AIsometricViewPawn::IsometricView()
     SpringArmComponent->bInheritPitch = false;
     SpringArmComponent->bInheritYaw = false;
     SpringArmComponent->bInheritRoll = false;
-    SpringArmComponent->TargetArmLength = 500.0f; // Adjust arm length as needed
+    SpringArmComponent->TargetArmLength = 800.0f; // Adjust arm length as needed
 
     FRotator TargetRotation;
     FVector TargetOffset;
 
     float AngleIncrement = 45.0f; // Angle increment between each position
-    float Radius = 50.0f; // Radius of the circle
+    float Radius = 100.0f; // Radius of the circle
 
     // Calculate the target offset based on the current OGVPosition
     switch (IMPosition)
     {
     case 0:
-        TargetOffset = FVector(Radius, 0.0f, 50.0f);
+        TargetOffset = FVector(Radius, 0.0f, 150.0f);
         TargetRotation = FRotator(-35.26f, 0.0f, 0.0f);
         break;
     case 1:
-        TargetOffset = FVector(Radius * FMath::Cos(FMath::DegreesToRadians(AngleIncrement)), Radius * FMath::Sin(FMath::DegreesToRadians(AngleIncrement)), 50.0f);
+        TargetOffset = FVector(Radius * FMath::Cos(FMath::DegreesToRadians(AngleIncrement)), Radius * FMath::Sin(FMath::DegreesToRadians(AngleIncrement)), 150.0f);
         TargetRotation = FRotator(-35.26f, 45.0f, 0.0f);
         break;
     case 2:
-        TargetOffset = FVector(0.0f, Radius, 50.0f);
+        TargetOffset = FVector(0.0f, Radius, 150.0f);
         TargetRotation = FRotator(-35.26f, 90.0f, 0.0f);
         break;
     case 3:
-        TargetOffset = FVector(Radius * FMath::Cos(FMath::DegreesToRadians(AngleIncrement * 3)), Radius * FMath::Sin(FMath::DegreesToRadians(AngleIncrement * 3)), 50.0f);
+        TargetOffset = FVector(Radius * FMath::Cos(FMath::DegreesToRadians(AngleIncrement * 3)), Radius * FMath::Sin(FMath::DegreesToRadians(AngleIncrement * 3)), 150.0f);
         TargetRotation = FRotator(-35.26f, 135.0f, 0.0f);
         break;
     case 4:
-        TargetOffset = FVector(-Radius, 0.0f, 50.0f);
+        TargetOffset = FVector(-Radius, 0.0f, 150.0f);
         TargetRotation = FRotator(-35.26f, 180.0f, 0.0f);
         break;
     case 5:
-        TargetOffset = FVector(Radius * FMath::Cos(FMath::DegreesToRadians(AngleIncrement * 5)), -Radius * FMath::Sin(FMath::DegreesToRadians(AngleIncrement * 5)), 50.0f);
+        TargetOffset = FVector(Radius * FMath::Cos(FMath::DegreesToRadians(AngleIncrement * 5)), -Radius * FMath::Sin(FMath::DegreesToRadians(AngleIncrement * 5)), 150.0f);
         TargetRotation = FRotator(-35.26f, 225.0f, 0.0f);
         break;
     case 6:
-        TargetOffset = FVector(0.0f, -Radius, 50.0f);
+        TargetOffset = FVector(0.0f, -Radius, 150.0f);
         TargetRotation = FRotator(-35.26f, 270.0f, 0.0f);
         break;
     case 7:
-        TargetOffset = FVector(Radius * FMath::Cos(FMath::DegreesToRadians(AngleIncrement * 7)), -Radius * FMath::Sin(FMath::DegreesToRadians(AngleIncrement * 7)), 50.0f);
+        TargetOffset = FVector(Radius * FMath::Cos(FMath::DegreesToRadians(AngleIncrement * 7)), -Radius * FMath::Sin(FMath::DegreesToRadians(AngleIncrement * 7)), 150.0f);
         TargetRotation = FRotator(-35.26f, 315.0f, 0.0f);
         break;
     }
