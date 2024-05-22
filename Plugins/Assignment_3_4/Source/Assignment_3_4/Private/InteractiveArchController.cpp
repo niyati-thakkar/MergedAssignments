@@ -3,6 +3,8 @@
 
 #include "InteractiveArchController.h"
 
+#include "IsometricViewPawn.h"
+
 void AInteractiveArchController::BeginPlay() {
 	Super::BeginPlay();
 	SpawnPawn();
@@ -26,7 +28,7 @@ void AInteractiveArchController::BeginPlay() {
 	}
 
 	DelegateLog.BindUFunction(this, FName("LogMessage"));
-	DelegateLog.Execute(FString("hello"), FColor::White);
+	//DelegateLog.Execute(FString("hello"), FColor::White);
 	UserWall = GetWorld()->SpawnActor<AWallGenerator>();
 
 }
@@ -232,7 +234,7 @@ void AInteractiveArchController::GenerateWall(FHitResult HitResult)
 	{
 		// Print the location to the screen
 		FVector Location = HitResult.Location;
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Mouse Click Location: X=%f, Y=%f, Z=%f"), Location.X, Location.Y, Location.Z));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Mouse Click Location: X=%f, Y=%f, Z=%f"), Location.X, Location.Y, Location.Z));
 
 		UserWall->GenerateSplineMesh(Location);
 		DelegateLog.Execute(FString("Got Location"), FColor::Yellow);
@@ -258,7 +260,9 @@ void AInteractiveArchController::SpawnActors(FHitResult HitResult)
 		auto loc = ArchMeshActor->GetActorLocation();
 		//loc.X -= 200;
 		//loc.X -= 50;
-		GetPawn()->SetActorLocation(loc);
+		if (Cast<AIsometricViewPawn>(CurrentPawn)) {
+			GetPawn()->SetActorLocation(loc);
+		}
 	}
 	else {
 		SelectionWidget->MeshScrollBox->SetVisibility(ESlateVisibility::Visible);
@@ -334,7 +338,7 @@ void AInteractiveArchController::LogMessage(const FString& Message, const FLinea
 
 void AInteractiveArchController::SpawnPawn() {
 	if (PawnTypeDataTable) {
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("got Data table"));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("got Data table"));
 
 		FViewPawnDataTable* CurrentPawnType = TypesOfPawns[Index];
 		if (CurrentPawnType) {
@@ -347,7 +351,7 @@ void AInteractiveArchController::SpawnPawn() {
 				if (CurrentPawnType->PawnType == EPawnType::TopDown)
 					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("3"));*/
 				if (CurrentPawn) {
-					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Black, TEXT("P Key Pressed! Spawning Another Pawn..."));
+					//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Black, TEXT("P Key Pressed! Spawning Another Pawn..."));
 					CurrentPawnLocation = CurrentPawn->GetActorLocation();
 					CurrentPawnRotation = CurrentPawn->GetActorRotation();
 					CurrentPawn->Destroy();

@@ -55,11 +55,11 @@ void ACustomPlayerController::SetEnhancedInputToggle() {
 
 void ACustomPlayerController::SpawnPawn() {
 	if (PawnTypeDataTable) {
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("got Data table"));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("got Data table"));
 
 		FPawnDataTable* CurrentPawnType = TypesOfPawns[Index];
 		if (CurrentPawnType) {
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("got struct"));
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("got struct"));
 			if (UWorld* CurrentWorld = GetWorld()) {
 				/*if(CurrentPawnType->PawnType == EPawnType::FirstPerson)
 					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("1"));

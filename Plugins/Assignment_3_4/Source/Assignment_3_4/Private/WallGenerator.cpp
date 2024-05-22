@@ -75,7 +75,7 @@ bool AWallGenerator::GenerateSplineMesh(FVector SplineLocation)
 	SplineComponent->AddSplinePoint(SplineLocation, ESplineCoordinateSpace::Local);
 	int32 SplinePoints = SplineComponent->GetNumberOfSplinePoints();
 	if (SplinePoints == 1) {
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("add one more point") ));
+		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("Add One More Point") ));
 		return true;
 	}
 

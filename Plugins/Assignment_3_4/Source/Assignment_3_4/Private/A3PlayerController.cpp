@@ -80,14 +80,14 @@ void AA3PlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	DelegateLog.BindUFunction(this, FName("LogMessage"));
-	DelegateLog.Execute(FString(""), FColor::White);
+	//DelegateLog.Execute(FString(""), FColor::White);
 	UserWall = GetWorld()->SpawnActor<AWallGenerator>();
 }
 
 void AA3PlayerController::DestroyWallMesh()
 {
 	if (UserWall->DestroySplineMesh()) {
-		DelegateLog.Execute(FString("Wall Mesh Deleted Successfully"), FColor::Green);
+		DelegateLog.Execute(FString("Wall Mesh Deleted Successfully"), FColor::Blue);
 	}
 	else {
 		DelegateLog.Execute(FString("No More Walls to Destroy"), FColor::Orange);
@@ -97,7 +97,7 @@ void AA3PlayerController::DestroyWallMesh()
 void AA3PlayerController::DestroyWallComponent()
 {
 	if (UserWall->DestroyAllSplineMeshes()) {
-		DelegateLog.Execute(FString("Wall Component Deleted Successfully"), FColor::Green);
+		DelegateLog.Execute(FString("Wall Component Deleted Successfully"), FColor::Blue);
 	}
 	else {
 		DelegateLog.Execute(FString("No More Walls to Destroy"), FColor::Orange);
