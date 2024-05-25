@@ -25,7 +25,7 @@ public class Assignment_5_6 : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core", "Engine", "ProceduralMeshComponent",
+				"Core", "Engine", "InputCore","ProceduralMeshComponent", "EnhancedInput",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

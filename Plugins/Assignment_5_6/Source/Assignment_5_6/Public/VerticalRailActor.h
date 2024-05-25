@@ -24,11 +24,14 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-    // Called in the editor when properties are changed
-    virtual void OnConstruction(const FTransform& Transform) override;
+	void InitialPillarGeneration();
 
-    // Procedural Mesh Component
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	// Called in the editor when properties are changed
+    virtual void OnConstruction(const FTransform& Transform) override;
+	void RoundTurnedCapital();
+
+	// Procedural Mesh Component
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
     UProceduralMeshComponent* ProcMeshComponent;
 
     // Properties for customization
@@ -38,14 +41,61 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rail Settings")
     int32 MeshTypeIndex;
 
-    // Functions to generate different types of top meshes
-    void GenerateBottomMesh();
-    void GenerateTopMesh(int32 MeshTypeIndex);
-    void CombineMeshes();
-    void GetBottomMeshData(TArray<FVector>& Vertices, TArray<int32>& Triangles);
-    void CreateSphere(float Radius, int32 Segments, TArray<FVector>& Vertices, TArray<int32>& Triangles);
-    void CreateCone(float Height, float Radius, int32 Sides, TArray<FVector>& Vertices, TArray<int32>& Triangles);
-    void CreatePyramid(float Height, float BaseRadius, TArray<FVector>& Vertices, TArray<int32>& Triangles);
-    // Helper function to create a box
-    void CreateBox(float Width, float Depth, float Height, TArray<FVector>& Vertices, TArray<int32>& Triangles);
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float BottomHeight = 0.0f;
+
+    //EditAnywhere, BlueprintReadWrite
+    UPROPERTY()
+    FVector Location = FVector::ZeroVector;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 Scale = 1;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 Index = 0.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float BottomSide = 0.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float TopSide = 0.0f;
+
+
+    //UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    //UMaterialInstance* MaterialInstance;
+
+	UFUNCTION(BlueprintCallable, Category = Defauls)
+    void WindsorTurnedCapital();
+	void PyramidTop();
+	void ACornCapital();
+	void GothicStarCapital();
+	void RoundedOverTopCapital();
+
+
+	UFUNCTION(BlueprintCallable, Category = Defauls)
+    void GenerateCube(FVector Dimensions);
+
+    UFUNCTION(BlueprintCallable, Category = Defauls)
+    void GenerateSphere(float Radius, int32 Segments, int32 Rings);
+
+    UFUNCTION(BlueprintCallable, Category = Defauls)
+    void GenerateCylinder(float Radius, float Height, int32 Segments);
+
+    UFUNCTION(BlueprintCallable, Category = Defauls)
+    void GenerateCone(float Radius, float Height, int32 Segments);
+   
+    void GenerateBellShape(float BaseRadius, float Height, float RimRadius, float CurvatureFactor, int32 NumSlices, int
+                           NumStacks);
+    void GenerateInvertedSemiEggShape(int32 NumSegments, float RadiusX, float RadiusY, float Height, TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray
+                                      <FVector>& Normals, TArray<FVector2D>& UVs, TArray<FProcMeshTangent>& Tangents, TArray<FLinearColor>& VertexColors);
+	void GenerateTorus(float InnerRadius, float OuterRadius, int32 RadialSegments, int32 TubularSegments);
+	void GenerateCornShape(int32 NumSegments, float BaseRadiusX, float BaseRadiusY, float Height);
+	void GeneratePyramid(float BaseLength, float Height);
+	void GenerateFenceTop(float Radius, float Length, float Width);
+	
+	void GenerateSemiEggShape(int32 NumSegments, float RadiusX, float RadiusY, float Height, TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray
+	                          <FVector>& Normals, TArray<FVector2D>& UVs, TArray<FProcMeshTangent>& Tangents, TArray<FLinearColor>& VertexColors);
+	int32 Segment = 0;
+    void BuildQuad(TArray<FVector>& InVertices, TArray<int32>& InTriangles, TArray<FVector>& InNormals, TArray<FProcMeshTangent>& InTangents, TArray<FVector2D>& InTexCoords, const FVector BottomLeft, const FVector BottomRight, const FVector TopRight, const FVector TopLeft, int32& VertexOffset, int32& TriangleOffset, const FVector Normal, const FProcMeshTangent Tangent);
+
 };
