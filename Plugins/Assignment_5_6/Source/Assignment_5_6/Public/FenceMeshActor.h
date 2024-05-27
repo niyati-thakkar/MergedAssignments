@@ -37,19 +37,19 @@ struct FFenceTypes : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString Name;
 
-	UPROPERTY()
-	AVerticalRailActor* Fence;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AActor> Fence; 
 
 };
 UCLASS()
 class ASSIGNMENT_5_6_API AFenceMeshActor : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AFenceMeshActor();
 	void ClearExistingPillars();
@@ -60,11 +60,12 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	void ReplacePillarsWithRails();
 	void ClearExistingBambooSticks();
+	void ReplaceBambooSticksWithProceduralMesh();
 
 	//UPROPERTY()
 	//USplineMeshComponent* FenceSplineComponent;
@@ -94,12 +95,23 @@ public:
 	int32 PillarSpacing;
 
 	UPROPERTY()
-	TArray<USplineComponent*> SplineComponents;
+	TArray<AActor*> SplineComponents;
 
 	UPROPERTY()
 	TArray<UStaticMeshComponent*> SplineMeshes;
 
 	UPROPERTY()
 	UStaticMesh* BambooStickMesh;
+
+	UPROPERTY()
+	UDataTable* DataTable_Fence;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence")
+	TArray<FFenceTypes*> FenceRows;
+
 	FVector BambooStickOffset{};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	int TileY;
+
 };

@@ -1,4 +1,6 @@
 #include "FenceMeshActor.h"
+
+#include "CylinderActor.h"
 #include "Components/SplineComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "UObject/ConstructorHelpers.h"
@@ -27,13 +29,18 @@ AFenceMeshActor::AFenceMeshActor()
         }
     }
 
-    PillarSpacing = 10.0f; // Default distance between pillars
+    PillarSpacing = 30.0f; // Default distance between pillars
 
     static ConstructorHelpers::FObjectFinder<UStaticMesh> BambooStickMeshAsset(TEXT("/Game/Megascans/3D_Assets/Bamboo_Stick_ud4pccafa/S_Bamboo_Stick_ud4pccafa_lod3_Var1.S_Bamboo_Stick_ud4pccafa_lod3_Var1"));
     if (BambooStickMeshAsset.Succeeded())
     {
         BambooStickMesh = BambooStickMeshAsset.Object;
     }
+
+    static ConstructorHelpers::FObjectFinder<UDataTable> Fence_DT(TEXT("/Assignment_5_6/DataTable/Fence_DT.Fence_DT"));
+    DataTable_Fence = Fence_DT.Object;
+
+
 }
 
 void AFenceMeshActor::ClearExistingPillars()
@@ -48,6 +55,7 @@ void AFenceMeshActor::ClearExistingPillars()
             Component->DestroyComponent();
         }
     }
+    SplineMeshes.Empty();
 }
 
 void AFenceMeshActor::OnConstruction(const FTransform& Transform)
@@ -68,11 +76,12 @@ void AFenceMeshActor::OnConstruction(const FTransform& Transform)
         FVector Direction = (EndPos - StartPos).GetSafeNormal();
         float SegmentLength = FVector::Distance(StartPos, EndPos);
         int NumberOfPillars = FMath::FloorToInt(SegmentLength / PillarSpacing);
-
+        float InternalSpacing = SegmentLength / NumberOfPillars;
+        if (i != NumberOfSplinePoints - 1) NumberOfPillars--;
         // Create pillars
         for (int j = 0; j <= NumberOfPillars; ++j)
         {
-            FVector PillarPos = StartPos + Direction * (j * PillarSpacing);
+            FVector PillarPos = StartPos + Direction * (j * InternalSpacing);
 
             // Create a new static mesh component for the pillar
             FString PillarName = FString::Printf(TEXT("Pillar_%d_%d"), i, j);
@@ -93,7 +102,7 @@ void AFenceMeshActor::OnConstruction(const FTransform& Transform)
         // Create bamboo stick at midpoint
         FVector BambooStickPos = StartPos + Direction * (SegmentLength / 2.0f);
         BambooStickPos.Z += 20;
-       
+
         // Create a new static mesh component for the first bamboo stick
         FString BambooStickName1 = FString::Printf(TEXT("BambooStick_%d"), (i - 1) * 2);
         UStaticMeshComponent* NewBambooStick1 = NewObject<UStaticMeshComponent>(this, FName(*BambooStickName1));
@@ -107,7 +116,7 @@ void AFenceMeshActor::OnConstruction(const FTransform& Transform)
         // Calculate rotation (if needed)
         FRotator StickRotation = Direction.Rotation(); // Rotate the stick along the spline direction
         NewBambooStick1->SetWorldRotation(StickRotation);
-
+        NewBambooStick1->SetMaterial(0, FenceMaterial);
         // Set scale for the first bamboo stick
         FVector StickScale = FVector(SegmentLength / 145, 0.25f, 0.25f); // Adjust scale as needed
         NewBambooStick1->SetWorldScale3D(StickScale);
@@ -122,7 +131,7 @@ void AFenceMeshActor::OnConstruction(const FTransform& Transform)
         NewBambooStick2->SetMobility(EComponentMobility::Movable);
         // Set material if needed
         NewBambooStick2->RegisterComponent();
-
+        NewBambooStick2->SetMaterial(0, FenceMaterial);
         // Calculate rotation (if needed)
         // Use the same rotation as the first bamboo stick
         NewBambooStick2->SetWorldRotation(StickRotation);
@@ -140,7 +149,8 @@ void AFenceMeshActor::BeginPlay()
 {
     Super::BeginPlay();
 
-	ReplacePillarsWithRails();
+    ReplacePillarsWithRails();
+    ReplaceBambooSticksWithProceduralMesh();
 }
 
 // Called every frame
@@ -149,26 +159,50 @@ void AFenceMeshActor::Tick(float DeltaTime)
     Super::Tick(DeltaTime);
 }
 
-// FenceMeshActor.cpp
-#include "FenceMeshActor.h"
+
 
 void AFenceMeshActor::ReplacePillarsWithRails()
 {
 
+
+    DataTable_Fence->GetAllRows<FFenceTypes>(TEXT("FenceDataTable"), FenceRows);
+
+    if (FenceRows.Num() == 0)
+    {
+        UE_LOG(LogTemp, Error, TEXT("FenceDataTable is empty!"));
+        return;
+    }
 
     for (UStaticMeshComponent* PillarComponent : SplineMeshes)
     {
         // Get the location of the pillar
         FVector PillarLocation = PillarComponent->GetComponentLocation();
 
+        // Pick a random rail class from the data table rows
+        int32 RandomIndex = FMath::RandRange(0, FenceRows.Num() - 1);
+        TSubclassOf<AVerticalRailActor> RandomRailClass = FenceRows[RandomIndex]->Fence;
+
         // Spawn an instance of AVerticalRailActor at the location of the pillar
-        AVerticalRailActor* RailActor = GetWorld()->SpawnActor<AVerticalRailActor>(PillarLocation, FRotator::ZeroRotator);
+        AVerticalRailActor* RailActor = GetWorld()->SpawnActor<AVerticalRailActor>(RandomRailClass, PillarLocation, FRotator::ZeroRotator);
 
-        // Optionally, copy any necessary properties from the pillar to the rail actor
+        if (FenceMaterial)
+        {
+            UMaterialInstanceDynamic* DynamicMaterial = UMaterialInstanceDynamic::Create(FenceMaterial, this);
+            if (DynamicMaterial)
+            {
+                DynamicMaterial->SetScalarParameterValue(FName("TileY"), TileY);
 
-        // Destroy the pillar
+                for (int i = 0; i < RailActor->ProcMeshComponent->GetNumSections(); i++)
+                {
+                    RailActor->ProcMeshComponent->SetMaterial(i, DynamicMaterial);
+                }
+
+            }
+        }
+        
         PillarComponent->DestroyComponent();
     }
+    SplineMeshes.Empty();
 }
 
 
@@ -187,3 +221,51 @@ void AFenceMeshActor::ClearExistingBambooSticks()
     }
 }
 
+void AFenceMeshActor::ReplaceBambooSticksWithProceduralMesh()
+{
+    TArray<UStaticMeshComponent*> Components;
+    GetComponents<UStaticMeshComponent>(Components);
+
+    for (UStaticMeshComponent* Component : Components)
+    {
+        if (Component && Component->GetStaticMesh() == BambooStickMesh)
+        {
+            FVector Location = Component->GetComponentLocation();
+            FRotator Rotation = Component->GetComponentRotation();
+            FVector Scale = Component->GetComponentScale();
+
+            // Calculate the length of the bamboo stick
+            float Length = Scale.X * Component->GetStaticMesh()->GetBoundingBox().GetSize().X;
+            float Radius = 5.0f; // Adjust the radius as necessary
+
+            // Spawn procedural mesh actor at the location of the bamboo stick
+            ACylinderActor* CylinderActor = GetWorld()->SpawnActor<ACylinderActor>(Location, Rotation);
+            if (CylinderActor)
+            {
+                // Optionally, set scale or other properties
+                CylinderActor->GenerateCylinder(1.0f, Length, 20);
+                //CylinderActor->SetActorScale3D(Scale);
+
+                if (FenceMaterial)
+                {
+                    UMaterialInstanceDynamic* DynamicMaterial = UMaterialInstanceDynamic::Create(FenceMaterial, this);
+                    if (DynamicMaterial)
+                    {
+                        DynamicMaterial->SetScalarParameterValue(FName("TileX"), Length / 100.0f); // Example scaling
+                        DynamicMaterial->SetScalarParameterValue(FName("TileY"), TileY);
+
+                        for(int i=0;i< CylinderActor->ProcMeshComponent->GetNumSections();i++)
+                        {
+                            CylinderActor->ProcMeshComponent->SetMaterial(i, DynamicMaterial);
+                        }
+                        
+                    }
+                }
+            }
+            
+
+            // Destroy the bamboo stick
+            Component->DestroyComponent();
+        }
+    }
+}

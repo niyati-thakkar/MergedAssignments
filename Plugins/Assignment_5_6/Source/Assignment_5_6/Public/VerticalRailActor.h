@@ -66,9 +66,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Defauls)
     void WindsorTurnedCapital();
+    UFUNCTION(BlueprintCallable, Category = Defauls)
 	void PyramidTop();
+    UFUNCTION(BlueprintCallable, Category = Defauls)
 	void ACornCapital();
+    UFUNCTION(BlueprintCallable, Category = Defauls)
 	void GothicStarCapital();
+    UFUNCTION(BlueprintCallable, Category = Defauls)
 	void RoundedOverTopCapital();
 
 
@@ -78,24 +82,36 @@ public:
     UFUNCTION(BlueprintCallable, Category = Defauls)
     void GenerateSphere(float Radius, int32 Segments, int32 Rings);
 
-    UFUNCTION(BlueprintCallable, Category = Defauls)
-    void GenerateCylinder(float Radius, float Height, int32 Segments);
+
 
     UFUNCTION(BlueprintCallable, Category = Defauls)
     void GenerateCone(float Radius, float Height, int32 Segments);
-   
+
+    UFUNCTION(BlueprintCallable, Category = Defauls)
     void GenerateBellShape(float BaseRadius, float Height, float RimRadius, float CurvatureFactor, int32 NumSlices, int
                            NumStacks);
-    void GenerateInvertedSemiEggShape(int32 NumSegments, float RadiusX, float RadiusY, float Height, TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray
+    UFUNCTION(BlueprintCallable, Category = Defauls)
+	void GenerateInvertedSemiEggShape(int32 NumSegments, float RadiusX, float RadiusY, float Height, TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray
                                       <FVector>& Normals, TArray<FVector2D>& UVs, TArray<FProcMeshTangent>& Tangents, TArray<FLinearColor>& VertexColors);
+    UFUNCTION(BlueprintCallable, Category = Defauls)
 	void GenerateTorus(float InnerRadius, float OuterRadius, int32 RadialSegments, int32 TubularSegments);
+    UFUNCTION(BlueprintCallable, Category = Defauls)
 	void GenerateCornShape(int32 NumSegments, float BaseRadiusX, float BaseRadiusY, float Height);
+    UFUNCTION(BlueprintCallable, Category = Defauls)
 	void GeneratePyramid(float BaseLength, float Height);
+    UFUNCTION(BlueprintCallable, Category = Defauls)
 	void GenerateFenceTop(float Radius, float Length, float Width);
-	
+    UFUNCTION(BlueprintCallable, Category = Defauls)
 	void GenerateSemiEggShape(int32 NumSegments, float RadiusX, float RadiusY, float Height, TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray
 	                          <FVector>& Normals, TArray<FVector2D>& UVs, TArray<FProcMeshTangent>& Tangents, TArray<FLinearColor>& VertexColors);
+
 	int32 Segment = 0;
+    UFUNCTION(BlueprintCallable, Category = Defauls)
     void BuildQuad(TArray<FVector>& InVertices, TArray<int32>& InTriangles, TArray<FVector>& InNormals, TArray<FProcMeshTangent>& InTangents, TArray<FVector2D>& InTexCoords, const FVector BottomLeft, const FVector BottomRight, const FVector TopRight, const FVector TopLeft, int32& VertexOffset, int32& TriangleOffset, const FVector Normal, const FProcMeshTangent Tangent);
+
+    
+
+
+
 
 };

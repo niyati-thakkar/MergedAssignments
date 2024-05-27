@@ -13,12 +13,7 @@ AVerticalRailActor::AVerticalRailActor()
 
 	ProcMeshComponent = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ProcMeshComponent"));
 	RootComponent = ProcMeshComponent;
-
-
-
-    InitialPillarGeneration();
-
-
+      
 }
 
 // Called when the game starts or when spawned
@@ -43,6 +38,7 @@ void AVerticalRailActor::InitialPillarGeneration()
     TopMeshLerpValue = 0.0f;
     //MeshTypeIndex = 0;
     Location = FVector::ZeroVector;
+    Location.Z += BottomHeight/2;
     BottomSide = 5;
     BottomHeight = 50;
     TopSide = BottomSide;
@@ -56,52 +52,52 @@ void AVerticalRailActor::InitialPillarGeneration()
         ProcMeshComponent->ClearMeshSection(Segment);
     }*/
     GenerateCube(FVector(BottomSide * 2, BottomSide * 2, BottomHeight));
+    Location.Z += BottomHeight / 2;
     Index = Index % 6;
     switch (Index)
     {
     case 0:
     {
-        Location.Z += BottomHeight/2 + BottomSide / 2; // Adjusted to place the rounded top at the top of the cube
-        RoundTurnedCapital();
-
-        break;
-    }
-    case 1:
-    {
-        Location.Z += BottomHeight/2 + BottomSide / 2; // Adjusted to place the rounded top at the top of the cube
+        Location.Z += BottomSide / 2; // Adjusted to place the rounded top at the top of the cube
 
         WindsorTurnedCapital();
         break;
     }
+    case 1:
+    {
+        Location.Z += BottomSide / 2; // Adjusted to place the rounded top at the top of the cube
+        RoundTurnedCapital();
+
+        break;
+        
+    }
     case 2:
     {
-        Location.Z += BottomHeight/2 + BottomSide / 2; // Adjusted to place the rounded top at the top of the cube
+        Location.Z += BottomSide / 2; // Adjusted to place the rounded top at the top of the cube
 
         ACornCapital();
         break;
     }
     case 3:
     {
-        Location.Z += BottomHeight/2; // Adjusted to place the rounded top at the top of the cube
-
+        
         RoundedOverTopCapital();
         break;
     }
     case 4:
     {
-        Location.Z += BottomHeight/2 + BottomSide / 2; // Adjusted to place the rounded top at the top of the cube
+        Location.Z += BottomSide / 2; // Adjusted to place the rounded top at the top of the cube
 
         GothicStarCapital();
         break;
     }
     case 5:
     {
-        Location.Z += BottomHeight/2; // Adjusted to place the rounded top at the top of the cube
-
-
+        
         PyramidTop();
         break;
     }
+    
     
 
     }
@@ -226,10 +222,10 @@ void AVerticalRailActor::BuildQuad(TArray<FVector>& InVertices, TArray<int32>& I
     const int32 Index2 = VertexOffset++;
     const int32 Index3 = VertexOffset++;
     const int32 Index4 = VertexOffset++;
-    InVertices[Index1] = BottomLeft;
-    InVertices[Index2] = BottomRight;
-    InVertices[Index3] = TopRight;
-    InVertices[Index4] = TopLeft;
+    InVertices[Index1] = BottomLeft + Location;
+    InVertices[Index2] = BottomRight + Location;
+    InVertices[Index3] = TopRight + Location;
+    InVertices[Index4] = TopLeft + Location;
     InTexCoords[Index1] = FVector2D(0.0f, 1.0f);
     InTexCoords[Index2] = FVector2D(1.0f, 1.0f);
     InTexCoords[Index3] = FVector2D(1.0f, 0.0f);
@@ -333,76 +329,7 @@ void AVerticalRailActor::GenerateSphere(float Radius, int32 Segments, int32 Ring
 }
 
 
-void AVerticalRailActor::GenerateCylinder(float Radius, float Height, int32 Segments)
-{
-   // ProcMeshComponent->ClearAllMeshSections();
 
-    TArray<FVector> Vertices;
-    TArray<int32> Triangles;
-    TArray<FVector> Normals;
-    TArray<FVector2D> UVs;
-    TArray<FProcMeshTangent> Tangents;
-    TArray<FLinearColor> Colors;
-    // Generate the vertices, normals, UVs, and tangents for the cylinder
-    for (int32 s = 0; s <= Segments; s++)
-    {
-        float Angle = static_cast<float>(s) / Segments * 2.0f * PI;
-        float X = Radius * FMath::Cos(Angle);
-        float Y = Radius * FMath::Sin(Angle);
-
-        Vertices.Add(Location + FVector(X, Y, -Height / 2.0f));
-        Vertices.Add(Location + FVector(X, Y, Height / 2.0f));
-
-        Normals.Add(FVector(FMath::Cos(Angle), FMath::Sin(Angle), 0.0f));
-        Normals.Add(FVector(FMath::Cos(Angle), FMath::Sin(Angle), 0.0f));
-
-        UVs.Add(FVector2D(static_cast<float>(s) / Segments, 0.0f));
-        UVs.Add(FVector2D(static_cast<float>(s) / Segments, 1.0f));
-
-        FVector TangentX = FVector(-FMath::Sin(Angle), FMath::Cos(Angle), 0.0f);
-        FVector TangentY = FVector(FMath::Cos(Angle), FMath::Sin(Angle), 0.0f);
-        FVector TangentZ = FVector(0.0f, 0.0f, 1.0f);
-
-        Tangents.Add(FProcMeshTangent(TangentX, false));
-        Tangents.Add(FProcMeshTangent(TangentY, false));
-    }
-
-    // Generate the triangle indices for both sides
-    for (int32 s = 0; s < Segments; s++)
-    {
-        int32 i0 = s * 2;
-        int32 i1 = i0 + 1;
-        int32 i2 = (s + 1) * 2;
-        int32 i3 = i2 + 1;
-
-        // Outer side
-        Triangles.Add(i0);
-        Triangles.Add(i2);
-        Triangles.Add(i1);
-
-        Triangles.Add(i1);
-        Triangles.Add(i2);
-        Triangles.Add(i3);
-
-        // Inner side (reverse winding)
-        Triangles.Add(i0);
-        Triangles.Add(i1);
-        Triangles.Add(i2);
-
-        Triangles.Add(i1);
-        Triangles.Add(i3);
-        Triangles.Add(i2);
-    }
-
-    // Generate the vertex colors
-    for (int32 i = 0; i < Vertices.Num(); i++)
-    {
-        Colors.Add(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f));
-    }
-
-    // Add the mesh to the procedural mesh component
-   ProcMeshComponent->CreateMeshSection_LinearColor(Segment++, Vertices, Triangles, Normals, UVs, Colors, Tangents, true);
-}
 
 void AVerticalRailActor::GenerateCone(float Radius, float Height, int32 Segments)
 {
@@ -728,7 +655,6 @@ void AVerticalRailActor::GenerateCornShape(int32 NumSegments, float BaseRadiusX,
     float BottomTaper = 0.1f; // Adjust for desired bottom taper (0 for no taper)
 
     GenerateSemiEggShape(NumSegments, BottomRadiusX, BottomRadiusY, CornBottomHeight, Vertices, Triangles, Normals, UVs, Tangents, VertexColors);
-    Segment++;
 
     // Middle section (elliptical cylinder with rounded ends)
     float MiddleRadiusX = (BaseRadiusX + BottomRadiusX) / 2.0f; // Adjust for smooth transition
@@ -1093,3 +1019,5 @@ void AVerticalRailActor::GenerateFenceTop(float Radius, float Length, float Widt
     // Create mesh section
     ProcMeshComponent->CreateMeshSection_LinearColor(Segment++, Vertices, Triangles, Normals, UVs, TArray<FLinearColor>(), Tangents, true);
 }
+
+
