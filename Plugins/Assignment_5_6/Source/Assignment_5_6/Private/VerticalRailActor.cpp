@@ -13,7 +13,9 @@ AVerticalRailActor::AVerticalRailActor()
 
 	ProcMeshComponent = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ProcMeshComponent"));
 	RootComponent = ProcMeshComponent;
-      
+
+
+    ActorType = EFenceType::Random;
 }
 
 // Called when the game starts or when spawned
@@ -21,7 +23,7 @@ void AVerticalRailActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-    InitialPillarGeneration();
+//    InitialPillarGeneration();
 	
 }
 
@@ -53,17 +55,56 @@ void AVerticalRailActor::InitialPillarGeneration()
     }*/
     GenerateCube(FVector(BottomSide * 2, BottomSide * 2, BottomHeight));
     Location.Z += BottomHeight / 2;
-    Index = Index % 6;
-    switch (Index)
+
+    if(ActorType == EFenceType::Random)
     {
-    case 0:
+        
+	    int32 RandomIndex = FMath::RandRange(0, 5);
+        switch (RandomIndex)
+        {
+        case 0:
+        {
+            ActorType = EFenceType::WindsorTurnedCapital;
+            break;
+        }
+        case 1:
+        {
+            ActorType = EFenceType::RoundTurnedCapital;
+            break;
+        }
+        case 2:
+        {
+            ActorType = EFenceType::ACornCapital;
+            break;
+        }
+        case 3:
+        {
+            ActorType = EFenceType::RoundedOverTopCapital;
+            break;
+        }
+        case 4:
+        {
+            ActorType = EFenceType::GothicStarCapital;
+            break;
+        }
+        case 5:
+        {
+            ActorType = EFenceType::PyramidTop;
+            break;
+        }
+
+        }
+    }
+    switch (ActorType)
+    {
+    case EFenceType::WindsorTurnedCapital:
     {
         Location.Z += BottomSide / 2; // Adjusted to place the rounded top at the top of the cube
 
         WindsorTurnedCapital();
         break;
     }
-    case 1:
+    case EFenceType::RoundTurnedCapital:
     {
         Location.Z += BottomSide / 2; // Adjusted to place the rounded top at the top of the cube
         RoundTurnedCapital();
@@ -71,32 +112,33 @@ void AVerticalRailActor::InitialPillarGeneration()
         break;
         
     }
-    case 2:
+    case EFenceType::ACornCapital:
     {
         Location.Z += BottomSide / 2; // Adjusted to place the rounded top at the top of the cube
 
         ACornCapital();
         break;
     }
-    case 3:
+    case EFenceType::RoundedOverTopCapital:
     {
         
         RoundedOverTopCapital();
         break;
     }
-    case 4:
+    case EFenceType::GothicStarCapital:
     {
         Location.Z += BottomSide / 2; // Adjusted to place the rounded top at the top of the cube
 
         GothicStarCapital();
         break;
     }
-    case 5:
+    case EFenceType::PyramidTop:
     {
         
         PyramidTop();
         break;
     }
+    
     
     
 

@@ -7,7 +7,17 @@
 #include "ProceduralMeshComponent.h"
 #include "VerticalRailActor.generated.h"
 
-
+UENUM(BlueprintType)
+enum EFenceType : uint8
+{
+    RoundedOverTopCapital,
+    ACornCapital,
+    RoundTurnedCapital,
+    WindsorTurnedCapital,
+    GothicStarCapital,
+    PyramidTop,
+    Random
+};
 UCLASS()
 class ASSIGNMENT_5_6_API AVerticalRailActor : public AActor
 {
@@ -52,7 +62,7 @@ public:
     int32 Scale = 1;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 Index = 0.0f;
+    TEnumAsByte<EFenceType> ActorType;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float BottomSide = 0.0f;

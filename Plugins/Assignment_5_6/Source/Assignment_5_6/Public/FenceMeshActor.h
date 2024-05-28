@@ -32,13 +32,15 @@ struct FFenceProperties
 	float spacing;
 };
 
+
+
 USTRUCT(BlueprintType)
 struct FFenceTypes : public FTableRowBase
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString Name;
+	TEnumAsByte<EFenceType> Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AActor> Fence; 
@@ -113,5 +115,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	int TileY;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TEnumAsByte<EFenceType> CurrentFenceType;
 
 };

@@ -40,7 +40,7 @@ AFenceMeshActor::AFenceMeshActor()
     static ConstructorHelpers::FObjectFinder<UDataTable> Fence_DT(TEXT("/Assignment_5_6/DataTable/Fence_DT.Fence_DT"));
     DataTable_Fence = Fence_DT.Object;
 
-
+    CurrentFenceType = EFenceType::Random;
 }
 
 void AFenceMeshActor::ClearExistingPillars()
@@ -118,7 +118,7 @@ void AFenceMeshActor::OnConstruction(const FTransform& Transform)
         NewBambooStick1->SetWorldRotation(StickRotation);
         NewBambooStick1->SetMaterial(0, FenceMaterial);
         // Set scale for the first bamboo stick
-        FVector StickScale = FVector(SegmentLength / 145, 0.25f, 0.25f); // Adjust scale as needed
+        FVector StickScale = FVector(((SegmentLength) / 145) , 0.25f, 0.25f); // Adjust scale as needed
         NewBambooStick1->SetWorldScale3D(StickScale);
 
         BambooStickPos.Z += 15;
@@ -179,12 +179,13 @@ void AFenceMeshActor::ReplacePillarsWithRails()
         FVector PillarLocation = PillarComponent->GetComponentLocation();
 
         // Pick a random rail class from the data table rows
-        int32 RandomIndex = FMath::RandRange(0, FenceRows.Num() - 1);
-        TSubclassOf<AVerticalRailActor> RandomRailClass = FenceRows[RandomIndex]->Fence;
+        //int32 RandomIndex = FMath::RandRange(0, FenceRows.Num() - 1);
+        //TSubclassOf<AVerticalRailActor> RandomRailClass = FenceRows[RandomIndex]->Fence;
 
-        // Spawn an instance of AVerticalRailActor at the location of the pillar
-        AVerticalRailActor* RailActor = GetWorld()->SpawnActor<AVerticalRailActor>(RandomRailClass, PillarLocation, FRotator::ZeroRotator);
-
+        //// Spawn an instance of AVerticalRailActor at the location of the pillar
+        AVerticalRailActor* RailActor = GetWorld()->SpawnActor<AVerticalRailActor>(AVerticalRailActor::StaticClass(), PillarLocation, FRotator::ZeroRotator);
+        RailActor->ActorType = CurrentFenceType;
+        RailActor->InitialPillarGeneration();
         if (FenceMaterial)
         {
             UMaterialInstanceDynamic* DynamicMaterial = UMaterialInstanceDynamic::Create(FenceMaterial, this);
