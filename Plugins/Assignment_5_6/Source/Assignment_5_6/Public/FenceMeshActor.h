@@ -7,45 +7,15 @@
 #include <Components/SplineComponent.h>
 #include "Components/SceneComponent.h"
 #include "Components/SplineMeshComponent.h"
-#include "Engine/DataTable.h"
 #include "Engine/StaticMesh.h"
 #include "Materials/MaterialInstance.h"
 #include "GameFramework/Actor.h"
+#include "FenceDataAsset.h"
 #include "FenceMeshActor.generated.h"
 
 
-USTRUCT()
-struct FFenceProperties
-{
-	GENERATED_BODY()
-
-	UPROPERTY()
-	float length;
-
-	UPROPERTY()
-	float width;
-
-	UPROPERTY()
-	float height;
-
-	UPROPERTY()
-	float spacing;
-};
 
 
-
-USTRUCT(BlueprintType)
-struct FFenceTypes : public FTableRowBase
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TEnumAsByte<EFenceType> Name;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<AActor> Fence; 
-
-};
 UCLASS()
 class ASSIGNMENT_5_6_API AFenceMeshActor : public AActor
 {
@@ -54,9 +24,10 @@ class ASSIGNMENT_5_6_API AFenceMeshActor : public AActor
 public:
 	// Sets default values for this actor's properties
 	AFenceMeshActor();
-	void ClearExistingPillars();
 
+	void GenerateVerticalMesh();
 	void OnConstruction(const FTransform& Transform) override;
+	void GenerateHorizontalMesh();
 
 protected:
 	// Called when the game starts or when spawned
@@ -65,37 +36,42 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	void ReplacePillarsWithRails();
-	void ClearExistingBambooSticks();
-	void ReplaceBambooSticksWithProceduralMesh();
 
-	//UPROPERTY()
-	//USplineMeshComponent* FenceSplineComponent;
+public:
 
 	UPROPERTY()
 	TSubclassOf < AVerticalRailActor > VerticalRailActorClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	USplineComponent* FenceSplineComponent;
-
-	TArray<AVerticalRailActor> RailingObjects;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	UPROPERTY()
 	USceneComponent* SceneComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	UStaticMesh* SourceMesh;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	UMaterialInterface* FenceMaterial;
+	UPROPERTY()
+	USplineComponent* FenceSplineComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	TEnumAsByte<ESplineMeshAxis::Type> SplineMeshAxis;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EFenceType FenceType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	int32 PillarSpacing;
+	EMaterialType MaterialType;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	UStaticMesh* HorizontalMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	FVector HorizontalMeshOffset{};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	int TileY;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence Data")
+	UFenceDataAsset* FenceData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	FFenceProperties FenceProperty;
+	
 	UPROPERTY()
 	TArray<AActor*> SplineComponents;
 
@@ -103,20 +79,17 @@ public:
 	TArray<UStaticMeshComponent*> SplineMeshes;
 
 	UPROPERTY()
-	UStaticMesh* BambooStickMesh;
+	UStaticMesh* SourceMesh;
 
 	UPROPERTY()
-	UDataTable* DataTable_Fence;
+	UMaterialInterface* SourceMaterial;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence")
-	TArray<FFenceTypes*> FenceRows;
+	UFUNCTION(BlueprintCallable)
+	void ClearExistingMeshes();
 
-	FVector BambooStickOffset{};
+	UFUNCTION(BlueprintCallable)
+	void ReplacePillarsWithRails();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	int TileY;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TEnumAsByte<EFenceType> CurrentFenceType;
-
+	UFUNCTION(BlueprintCallable)
+	void ReplaceHorizontalMeshsWithProceduralMesh();
 };

@@ -5,19 +5,30 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "ProceduralMeshComponent.h"
+#include "FenceDataAsset.h"
 #include "VerticalRailActor.generated.h"
 
-UENUM(BlueprintType)
-enum EFenceType : uint8
+USTRUCT(BlueprintType)
+struct FFenceProperties
 {
-    RoundedOverTopCapital,
-    ACornCapital,
-    RoundTurnedCapital,
-    WindsorTurnedCapital,
-    GothicStarCapital,
-    PyramidTop,
-    Random
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float SideLength;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float BottomHeight;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float Spacing;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float HorizontalRadius;
+
 };
+
+
+
 UCLASS()
 class ASSIGNMENT_5_6_API AVerticalRailActor : public AActor
 {
@@ -32,96 +43,87 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
+
 	virtual void Tick(float DeltaTime) override;
-	void InitialPillarGeneration();
+	static void SelectForRandom(EFenceType& FType, EMaterialType& EType);
 
-	// Called in the editor when properties are changed
-    virtual void OnConstruction(const FTransform& Transform) override;
-	void RoundTurnedCapital();
+	virtual void OnConstruction(const FTransform& Transform) override;
 
-	// Procedural Mesh Component
+public:
+    UFUNCTION(BlueprintCallable, Category = Defaults)
+    void InitialPillarGeneration();
+        
+    int32 Segment = 0;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
     UProceduralMeshComponent* ProcMeshComponent;
 
-    // Properties for customization
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rail Settings")
     float TopMeshLerpValue;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rail Settings")
-    int32 MeshTypeIndex;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float BottomHeight = 0.0f;
-
-    //EditAnywhere, BlueprintReadWrite
     UPROPERTY()
     FVector Location = FVector::ZeroVector;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int32 Scale = 1;
+    EFenceType FenceType;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TEnumAsByte<EFenceType> ActorType;
+    EMaterialType MaterialType;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float BottomSide = 0.0f;
+    FFenceProperties FenceProperty;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float TopSide = 0.0f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence Data")
+    UFenceDataAsset* FenceData;
 
 
-    //UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    //UMaterialInstance* MaterialInstance;
+    UFUNCTION(BlueprintCallable, Category = Defaults)
+    void RoundTurnedCapital();
 
-	UFUNCTION(BlueprintCallable, Category = Defauls)
+	UFUNCTION(BlueprintCallable, Category = Defaults)
     void WindsorTurnedCapital();
-    UFUNCTION(BlueprintCallable, Category = Defauls)
+
+    UFUNCTION(BlueprintCallable, Category = Defaults)
 	void PyramidTop();
-    UFUNCTION(BlueprintCallable, Category = Defauls)
+
+    UFUNCTION(BlueprintCallable, Category = Defaults)
 	void ACornCapital();
-    UFUNCTION(BlueprintCallable, Category = Defauls)
+
+    UFUNCTION(BlueprintCallable, Category = Defaults)
 	void GothicStarCapital();
-    UFUNCTION(BlueprintCallable, Category = Defauls)
+
+    UFUNCTION(BlueprintCallable, Category = Defaults)
 	void RoundedOverTopCapital();
 
 
-	UFUNCTION(BlueprintCallable, Category = Defauls)
+
+	UFUNCTION(BlueprintCallable, Category = Defaults)
     void GenerateCube(FVector Dimensions);
 
-    UFUNCTION(BlueprintCallable, Category = Defauls)
+    UFUNCTION(BlueprintCallable, Category = Defaults)
     void GenerateSphere(float Radius, int32 Segments, int32 Rings);
 
-
-
-    UFUNCTION(BlueprintCallable, Category = Defauls)
+    UFUNCTION(BlueprintCallable, Category = Defaults)
     void GenerateCone(float Radius, float Height, int32 Segments);
 
-    UFUNCTION(BlueprintCallable, Category = Defauls)
+    UFUNCTION(BlueprintCallable, Category = Defaults)
     void GenerateBellShape(float BaseRadius, float Height, float RimRadius, float CurvatureFactor, int32 NumSlices, int
                            NumStacks);
-    UFUNCTION(BlueprintCallable, Category = Defauls)
+    UFUNCTION(BlueprintCallable, Category = Defaults)
 	void GenerateInvertedSemiEggShape(int32 NumSegments, float RadiusX, float RadiusY, float Height, TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray
                                       <FVector>& Normals, TArray<FVector2D>& UVs, TArray<FProcMeshTangent>& Tangents, TArray<FLinearColor>& VertexColors);
-    UFUNCTION(BlueprintCallable, Category = Defauls)
+    UFUNCTION(BlueprintCallable, Category = Defaults)
 	void GenerateTorus(float InnerRadius, float OuterRadius, int32 RadialSegments, int32 TubularSegments);
-    UFUNCTION(BlueprintCallable, Category = Defauls)
+    UFUNCTION(BlueprintCallable, Category = Defaults)
 	void GenerateCornShape(int32 NumSegments, float BaseRadiusX, float BaseRadiusY, float Height);
-    UFUNCTION(BlueprintCallable, Category = Defauls)
+    UFUNCTION(BlueprintCallable, Category = Defaults)
 	void GeneratePyramid(float BaseLength, float Height);
-    UFUNCTION(BlueprintCallable, Category = Defauls)
+    UFUNCTION(BlueprintCallable, Category = Defaults)
 	void GenerateFenceTop(float Radius, float Length, float Width);
-    UFUNCTION(BlueprintCallable, Category = Defauls)
+    UFUNCTION(BlueprintCallable, Category = Defaults)
 	void GenerateSemiEggShape(int32 NumSegments, float RadiusX, float RadiusY, float Height, TArray<FVector>& Vertices, TArray<int32>& Triangles, TArray
 	                          <FVector>& Normals, TArray<FVector2D>& UVs, TArray<FProcMeshTangent>& Tangents, TArray<FLinearColor>& VertexColors);
-
-	int32 Segment = 0;
-    UFUNCTION(BlueprintCallable, Category = Defauls)
+    UFUNCTION(BlueprintCallable, Category = Defaults)
     void BuildQuad(TArray<FVector>& InVertices, TArray<int32>& InTriangles, TArray<FVector>& InNormals, TArray<FProcMeshTangent>& InTangents, TArray<FVector2D>& InTexCoords, const FVector BottomLeft, const FVector BottomRight, const FVector TopRight, const FVector TopLeft, int32& VertexOffset, int32& TriangleOffset, const FVector Normal, const FProcMeshTangent Tangent);
-
-    
-
-
-
 
 };

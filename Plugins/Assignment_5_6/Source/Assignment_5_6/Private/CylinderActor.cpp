@@ -29,14 +29,14 @@ void ACylinderActor::Tick(float DeltaTime)
 
 void ACylinderActor::OnConstruction(const FTransform& Transform)
 {
-   
+    GenerateCylinder();
 }
 // CylinderGenerator.cpp
 
 
 
 
-void ACylinderActor::GenerateCylinder(float Radius, float Height, int32 Segments)
+void ACylinderActor::GenerateCylinder()
 {
     // ProcMeshComponent->ClearAllMeshSections();
 
@@ -99,8 +99,8 @@ void ACylinderActor::GenerateCylinder(float Radius, float Height, int32 Segments
     }
 
     // Add the cylinder caps
-    AddCylinderCaps(Vertices, Triangles, Normals, UVs, Colors, Tangents, Radius, Height / 2.0f, Segments);
-    AddCylinderCaps(Vertices, Triangles, Normals, UVs, Colors, Tangents, Radius, -Height / 2.0f, Segments);
+    AddCylinderCaps(Vertices, Triangles, Normals, UVs, Colors, Tangents,Height / 2.0f);
+    AddCylinderCaps(Vertices, Triangles, Normals, UVs, Colors, Tangents, -Height / 2.0f);
 
     // Generate the vertex colors
     for (int32 i = 0; i < Vertices.Num(); i++)
@@ -121,9 +121,7 @@ void ACylinderActor::AddCylinderCaps(
     TArray<FVector2D>& UVs,
     TArray<FLinearColor>& Colors,
     TArray<FProcMeshTangent>& Tangents,
-    float Radius,
-    float HalfHeight,
-    int32 Segments)
+    float HalfHeight)
 {
     int32 CapCenterBottomIndex = Vertices.Num();
     Vertices.Add(FVector(-HalfHeight, 0.0f, 0.0f));

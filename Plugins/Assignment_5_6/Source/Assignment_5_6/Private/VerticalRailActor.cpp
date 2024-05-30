@@ -14,8 +14,17 @@ AVerticalRailActor::AVerticalRailActor()
 	ProcMeshComponent = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ProcMeshComponent"));
 	RootComponent = ProcMeshComponent;
 
+    static ConstructorHelpers::FObjectFinder<UFenceDataAsset> Fence_DA(TEXT("/Assignment_5_6/DataAsset/Fence_UDA.Fence_UDA"));
+    FenceData = Fence_DA.Object;
 
-    ActorType = EFenceType::Random;
+    FenceType = EFenceType::Random;
+    MaterialType = EMaterialType::Random;
+
+
+    FenceProperty.Spacing = 20;
+    FenceProperty.SideLength = 5;
+    FenceProperty.BottomHeight = 50;
+
 }
 
 // Called when the game starts or when spawned
@@ -35,78 +44,114 @@ void AVerticalRailActor::Tick(float DeltaTime)
 }
 
 
-void AVerticalRailActor::InitialPillarGeneration()
+void AVerticalRailActor::SelectForRandom(EFenceType& FType, EMaterialType& EType)
 {
-    TopMeshLerpValue = 0.0f;
-    //MeshTypeIndex = 0;
-    Location = FVector::ZeroVector;
-    Location.Z += BottomHeight/2;
-    BottomSide = 5;
-    BottomHeight = 50;
-    TopSide = BottomSide;
-    BottomSide *= Scale;
-    BottomHeight *= Scale;
-    TopSide *= Scale;
-    ProcMeshComponent->ClearAllMeshSections();
-    Segment = 0;
-    /*while(Segment-- > 0)
+    if (FType == EFenceType::Random)
     {
-        ProcMeshComponent->ClearMeshSection(Segment);
-    }*/
-    GenerateCube(FVector(BottomSide * 2, BottomSide * 2, BottomHeight));
-    Location.Z += BottomHeight / 2;
 
-    if(ActorType == EFenceType::Random)
-    {
-        
-	    int32 RandomIndex = FMath::RandRange(0, 5);
+        int32 RandomIndex = FMath::RandRange(0, 5);
         switch (RandomIndex)
         {
         case 0:
         {
-            ActorType = EFenceType::WindsorTurnedCapital;
+            FType = EFenceType::WindsorTurnedCapital;
             break;
         }
         case 1:
         {
-            ActorType = EFenceType::RoundTurnedCapital;
+            FType = EFenceType::RoundTurnedCapital;
             break;
         }
         case 2:
         {
-            ActorType = EFenceType::ACornCapital;
+            FType = EFenceType::ACornCapital;
             break;
         }
         case 3:
         {
-            ActorType = EFenceType::RoundedOverTopCapital;
+            FType = EFenceType::RoundedOverTopCapital;
             break;
         }
         case 4:
         {
-            ActorType = EFenceType::GothicStarCapital;
+            FType = EFenceType::GothicStarCapital;
             break;
         }
         case 5:
         {
-            ActorType = EFenceType::PyramidTop;
+            FType = EFenceType::PyramidTop;
             break;
         }
 
         }
     }
-    switch (ActorType)
+
+    if(EType == EMaterialType::Random)
+    {
+        int32 RandomIndex = FMath::RandRange(0, 3);
+        switch (RandomIndex)
+        {
+        case 0:
+        {
+            EType = EMaterialType::Oak_Wood;
+            break;
+        }
+        case 1:
+        {
+            EType = EMaterialType::Pine_Wood;
+            break;
+        }
+        case 2:
+        {
+            EType = EMaterialType::Walnut_Floor_Wood;
+            break;
+        }
+        case 3:
+        {
+            EType = EMaterialType::Walnut_Wood;
+            break;
+        }
+        }
+        
+    }
+}
+
+void AVerticalRailActor::InitialPillarGeneration()
+{
+    TopMeshLerpValue = 0.0f;
+    //MeshTypeIndex = 0;
+    Location = FVector::ZeroVector;
+    Location.Z += FenceProperty.BottomHeight/2;
+
+    ProcMeshComponent->ClearAllMeshSections();
+    Segment = 0;
+    SelectForRandom(FenceType, MaterialType);
+    
+    GenerateCube(FVector(FenceProperty.SideLength * 2, FenceProperty.SideLength * 2, FenceProperty.BottomHeight));
+
+    Location.Z += FenceProperty.BottomHeight / 2 + FenceProperty.BottomHeight*0.01;
+
+    GenerateCube(FVector(FenceProperty.SideLength));
+
+    Location.Z += FenceProperty.SideLength / 2;
+
+    GenerateCube(FVector(FenceProperty.SideLength * 2, FenceProperty.SideLength * 2, FenceProperty.SideLength));
+
+	Location.Z += FenceProperty.SideLength / 2;
+
+    
+    switch (FenceType)
     {
     case EFenceType::WindsorTurnedCapital:
     {
-        Location.Z += BottomSide / 2; // Adjusted to place the rounded top at the top of the cube
+        Location.Z += FenceProperty.SideLength / 2; 
 
         WindsorTurnedCapital();
         break;
     }
     case EFenceType::RoundTurnedCapital:
     {
-        Location.Z += BottomSide / 2; // Adjusted to place the rounded top at the top of the cube
+        Location.Z += FenceProperty.SideLength / 2; // Adjusted to place the rounded top at the top of the cube
         RoundTurnedCapital();
 
         break;
@@ -114,7 +159,7 @@ void AVerticalRailActor::InitialPillarGeneration()
     }
     case EFenceType::ACornCapital:
     {
-        Location.Z += BottomSide / 2; // Adjusted to place the rounded top at the top of the cube
+        Location.Z += FenceProperty.SideLength / 2; // Adjusted to place the rounded top at the top of the cube
 
         ACornCapital();
         break;
@@ -127,7 +172,7 @@ void AVerticalRailActor::InitialPillarGeneration()
     }
     case EFenceType::GothicStarCapital:
     {
-        Location.Z += BottomSide / 2; // Adjusted to place the rounded top at the top of the cube
+        Location.Z += FenceProperty.SideLength / 2; // Adjusted to place the rounded top at the top of the cube
 
         GothicStarCapital();
         break;
@@ -143,6 +188,10 @@ void AVerticalRailActor::InitialPillarGeneration()
     
 
     }
+    for(int i = 0; i < Segment; i++)
+    {
+        ProcMeshComponent->SetMaterial(i, FenceData->Materials[MaterialType]);
+    }
 	
 }
 void AVerticalRailActor::OnConstruction(const FTransform& Transform)
@@ -156,50 +205,50 @@ void AVerticalRailActor::OnConstruction(const FTransform& Transform)
 void AVerticalRailActor::RoundTurnedCapital()
 {
 
-    GenerateBellShape(TopSide, TopSide /2, TopSide /2, 1, 10, 10);
-    Location.Z += TopSide;
+    GenerateBellShape(FenceProperty.SideLength, FenceProperty.SideLength /2, FenceProperty.SideLength /2, 1, 10, 10);
+    Location.Z += FenceProperty.SideLength;
 
-	GenerateSphere(TopSide, 20, 20);
+	GenerateSphere(FenceProperty.SideLength, 20, 20);
 }
 void AVerticalRailActor::WindsorTurnedCapital()
 {
 
-    GenerateBellShape(TopSide, TopSide / 2, TopSide / 2, 1, 10, 10);
-    Location.Z += TopSide;
+    GenerateBellShape(FenceProperty.SideLength, FenceProperty.SideLength / 2, FenceProperty.SideLength / 2, 1, 10, 10);
+    Location.Z += FenceProperty.SideLength;
 
-    GenerateSphere(TopSide, 20, 20);
-    Location.Z += TopSide + TopSide /2-1;
-    GenerateBellShape(TopSide / 2, 2, 0.5, 1, 10, 10);
+    GenerateSphere(FenceProperty.SideLength, 20, 20);
+    Location.Z += FenceProperty.SideLength + FenceProperty.SideLength /2-1;
+    GenerateBellShape(FenceProperty.SideLength / 2, 2, 0.5, 1, 10, 10);
 
 }
 void AVerticalRailActor::PyramidTop()
 {
 
-    GeneratePyramid(TopSide *2, TopSide *2);
+    GeneratePyramid(FenceProperty.SideLength *2, FenceProperty.SideLength *2);
 }
 void AVerticalRailActor::ACornCapital()
 {
 
-    GenerateBellShape(TopSide, TopSide / 2, TopSide / 2, 1, 10, 10);
-    Location.Z += TopSide *2-2;
+    GenerateBellShape(FenceProperty.SideLength, FenceProperty.SideLength / 2, FenceProperty.SideLength / 2, 1, 10, 10);
+    Location.Z += FenceProperty.SideLength *2-2;
 
-    GenerateCornShape(20, TopSide, TopSide, TopSide *5);
-    Location.Z -= TopSide *4 -2;
-    GenerateTorus(TopSide, TopSide +2, 20, 20);
+    GenerateCornShape(20, FenceProperty.SideLength, FenceProperty.SideLength, FenceProperty.SideLength *5);
+    Location.Z -= FenceProperty.SideLength *4 -2;
+    GenerateTorus(FenceProperty.SideLength, FenceProperty.SideLength +2, 20, 20);
 
 }
 void AVerticalRailActor::GothicStarCapital()
 {
-    GenerateBellShape(TopSide, TopSide / 2, TopSide / 2, 1, 10, 10);
-    Location.Z += TopSide /2;
+    GenerateBellShape(FenceProperty.SideLength, FenceProperty.SideLength / 2, FenceProperty.SideLength / 2, 1, 10, 10);
+    Location.Z += FenceProperty.SideLength /2;
 
-    GeneratePyramid(TopSide *2, TopSide *2);
+    GeneratePyramid(FenceProperty.SideLength *2, FenceProperty.SideLength *2);
 
 }
 void AVerticalRailActor::RoundedOverTopCapital()
 {
 
-    GenerateFenceTop(TopSide, TopSide * 2, TopSide *2);
+    GenerateFenceTop(FenceProperty.SideLength, FenceProperty.SideLength * 2, FenceProperty.SideLength *2);
 }
 
 

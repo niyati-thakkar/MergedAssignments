@@ -25,19 +25,26 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	void OnConstruction(const FTransform& Transform) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Radius;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Height;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Segments;
+
 	UFUNCTION(BlueprintCallable, Category = Defauls)
-	void GenerateCylinder(float Radius, float Height, int32 Segments);
+	void GenerateCylinder();
 
 	UFUNCTION()
 	void AddCylinderCaps(TArray<FVector>& Vertices,
-		TArray<int32>& Triangles,
-		TArray<FVector>& Normals,
-		TArray<FVector2D>& UVs,
-		TArray<FLinearColor>& Colors,
-		TArray<FProcMeshTangent>& Tangents,
-		float Radius,
-		float HalfHeight,
-		int32 Segments);
+	                     TArray<int32>& Triangles,
+	                     TArray<FVector>& Normals,
+	                     TArray<FVector2D>& UVs,
+	                     TArray<FLinearColor>& Colors,
+	                     TArray<FProcMeshTangent>& Tangents, float HalfHeight);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UProceduralMeshComponent* ProcMeshComponent;
 };
