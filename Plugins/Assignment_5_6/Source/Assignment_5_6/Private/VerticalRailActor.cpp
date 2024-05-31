@@ -129,7 +129,7 @@ void AVerticalRailActor::InitialPillarGeneration()
     
     GenerateCube(FVector(FenceProperty.SideLength * 2, FenceProperty.SideLength * 2, FenceProperty.BottomHeight));
 
-    Location.Z += FenceProperty.BottomHeight / 2 + FenceProperty.BottomHeight*0.01;
+    Location.Z += FenceProperty.BottomHeight / 2 + FenceProperty.SideLength*0.1;
 
     GenerateCube(FVector(FenceProperty.SideLength));
 
@@ -217,8 +217,8 @@ void AVerticalRailActor::WindsorTurnedCapital()
     Location.Z += FenceProperty.SideLength;
 
     GenerateSphere(FenceProperty.SideLength, 20, 20);
-    Location.Z += FenceProperty.SideLength + FenceProperty.SideLength /2-1;
-    GenerateBellShape(FenceProperty.SideLength / 2, 2, 0.5, 1, 10, 10);
+    Location.Z += FenceProperty.SideLength + FenceProperty.SideLength / 8;
+    GenerateBellShape(FenceProperty.SideLength / 2, FenceProperty.SideLength / 4, 0.5, 1, 10, 10);
 
 }
 void AVerticalRailActor::PyramidTop()
