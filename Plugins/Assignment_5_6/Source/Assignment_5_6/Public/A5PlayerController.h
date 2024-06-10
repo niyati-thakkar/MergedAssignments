@@ -7,8 +7,11 @@
 #include "EnhancedInputComponent.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
-
+#include "MeshGenerator.h"
+#include "SelectionArea.h"
+#include "Blueprint/UserWidget.h"
 #include "A5PlayerController.generated.h"
+
 
 /**
  * 
@@ -20,9 +23,26 @@ class ASSIGNMENT_5_6_API AA5PlayerController : public APlayerController
 
 
 protected:
+	
 	void SetupInputComponent() override;
+	void GetMouseClick(const FInputActionValue& InputAction);
+	void FollowMouse(const FInputActionValue& InputAction);
+	void BeginPlay() override;
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void UpdateProgressBar(float Progress);
 
 public:
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UUserWidget* W_MeshGenerationUI;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UUserWidget> WidgetBPClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ASelectionArea* SelectionArea;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	AMeshGenerator* MeshGenerator;
 };
