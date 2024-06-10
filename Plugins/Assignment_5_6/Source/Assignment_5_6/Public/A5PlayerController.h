@@ -26,14 +26,17 @@ protected:
 	
 	void SetupInputComponent() override;
 	void GetMouseClick(const FInputActionValue& InputAction);
-	void FollowMouse(const FInputActionValue& InputAction);
 	void BeginPlay() override;
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void UpdateProgressBar(float Progress);
 
 public:
-	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void HideProgressPanel();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void ShowProgressPanel();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UUserWidget* W_MeshGenerationUI;
 
@@ -45,4 +48,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	AMeshGenerator* MeshGenerator;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool isGenerating;
 };

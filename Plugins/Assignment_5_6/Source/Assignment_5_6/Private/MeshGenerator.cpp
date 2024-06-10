@@ -3,6 +3,7 @@
 
 #include "MeshGenerator.h"
 
+#include "A5PlayerController.h"
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -93,11 +94,11 @@ void AMeshGenerator::AddInstance(UStaticMesh* StaticMesh, FTransform Transform)
 
 		int RandomIndex = FMath::RandRange(0, MeshDataAsset->ToonShaderMaterials.Num() - 1);
 		NewHISMCPtr->SetStaticMesh(StaticMesh);
-		
+		NewHISMCPtr->SetMaterial(0, MeshDataAsset->ToonShaderMaterials[RandomIndex]);
 		HISMComponents.Add(StaticMesh, NewHISMCPtr);
 		NewHISMCPtr->RegisterComponentWithWorld(GetWorld());
 		NewHISMCPtr->AddInstance(Transform);
-		NewHISMCPtr->SetMaterial(0, MeshDataAsset->ToonShaderMaterials[RandomIndex]);
+		
 	}
 	
 		
@@ -111,10 +112,33 @@ void AMeshGenerator::AddInstance(UStaticMesh* StaticMesh, FTransform Transform)
 
 void AMeshGenerator::UpdateProgress(float Progress)
 {
-	/*AsyncTask(ENamedThreads::GameThread, [this, Progress]()
-		{*/
+	AsyncTask(ENamedThreads::GameThread, [this, Progress]()
+		{
 			ScatterProgressUpdated.Broadcast(Progress);
-		//});
+		});
+}
+void AMeshGenerator::ManageProgressBar(bool makeVisible)
+{
+	AsyncTask(ENamedThreads::GameThread, [this, makeVisible]()
+		{
+			APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+			if (PlayerController)
+			{
+				AA5PlayerController* A5PC = Cast<AA5PlayerController>(PlayerController);
+				if (A5PC)
+				{
+					if(makeVisible)
+					{
+						A5PC->ShowProgressPanel();
+					}else
+					{
+						A5PC->HideProgressPanel();
+					}
+					
+				}
+
+			}
+		});
 }
 
 //void AMeshGenerator::FinishScatter()

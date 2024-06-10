@@ -21,13 +21,6 @@ void AA5PlayerController::SetupInputComponent()
 
 		EIC->BindAction(RightClickAction, ETriggerEvent::Completed, this, &AA5PlayerController::GetMouseClick);
 
-		UInputAction* LeftClickAction = NewObject<UInputAction>();
-		LeftClickAction->ValueType = EInputActionValueType::Axis2D;
-
-		IMC->MapKey(LeftClickAction, EKeys::LeftMouseButton);
-
-		EIC->BindAction(LeftClickAction, ETriggerEvent::Completed, this, &AA5PlayerController::FollowMouse);
-
 		const auto LocalPlayer = GetLocalPlayer();
 
 		if (LocalPlayer)
@@ -45,20 +38,21 @@ void AA5PlayerController::SetupInputComponent()
 	}
 	SelectionArea = GetWorld()->SpawnActor<ASelectionArea>(FVector::ZeroVector, FRotator(0));
 	MeshGenerator = GetWorld()->SpawnActor<AMeshGenerator>(FVector::ZeroVector, FRotator(0));
-
-	
-
+	isGenerating = false;
 }
 
 void AA5PlayerController::GetMouseClick(const FInputActionValue& InputAction) {
+
+	if(!isGenerating)
+	{
+		SelectionArea->bIsSpawned = !SelectionArea->bIsSpawned;
+		if (SelectionArea->bIsSpawned) {
+			SelectionArea->SpawnGeneratedMesh();
+			MeshGenerator->ScatterObjects();
+		}
+	}
 	
-	SelectionArea->bIsSpawned = true;
-	SelectionArea->SpawnGeneratedMesh();
-	MeshGenerator->ScatterObjects();
 				
-}
-void AA5PlayerController::FollowMouse(const FInputActionValue& InputAction) {
-	SelectionArea->bIsSpawned = false;
 }
 void AA5PlayerController::BeginPlay()
 {

@@ -13,6 +13,7 @@ FAsyncScatterTask::FAsyncScatterTask(AMeshGenerator* InScatterActor)
 
 void FAsyncScatterTask::DoWork()
 {
+    ScatterActor->ManageProgressBar(true);
     if (ScatterActor)
     {
         if (ScatterActor->MeshDataAsset && ScatterActor->SelectionArea)
@@ -26,7 +27,7 @@ void FAsyncScatterTask::DoWork()
             const float Padding = 10.0f; // Example padding value
 
             
-            for (int i = 0; i < ScatterActor->NumberOfInstances / 4; i++)
+            for (int i = 0; i < ScatterActor->NumberOfInstances; i++)
             {
                 int RandomIndex = FMath::RandRange(0, StaticMeshes.Num() - 1);
                 UStaticMesh* CurrentMesh = StaticMeshes[RandomIndex];
@@ -64,25 +65,33 @@ void FAsyncScatterTask::DoWork()
 
                 // Add the instance with the random position, scale, and rotation
                 FTransform Transform(RandomRotation, Position, RandomScale);
-                AsyncTask(ENamedThreads::GameThread, [this, CurrentMesh, Transform]()
+                AsyncTask(ENamedThreads::GameThread, [this, i,CurrentMesh, Transform]()
                     {
+
                         ScatterActor->AddInstance(CurrentMesh, Transform);
+                        
+                        float Progress = ((float)(i + 1) / static_cast<float>(ScatterActor->NumberOfInstances));
+                        ScatterActor->UpdateProgress(Progress);
 
                     });
-
-                if ((i + 1) % 25 == 0)
+                if(ScatterActor->NumberOfInstances < 10000){
+                    FPlatformProcess::Sleep((float)2 / static_cast<float>(ScatterActor->NumberOfInstances));
+                }else
                 {
-                    float Progress = ((i + 1) / static_cast<float>(ScatterActor->NumberOfInstances)) * 100.0f;
-                    ScatterActor->UpdateProgress(Progress);
+                    FPlatformProcess::Sleep((float)10 / static_cast<float>(ScatterActor->NumberOfInstances));
                 }
-                //FPlatformProcess::Sleep(10);
+                
+                
+                
+                //
             }
-               
+            
             
             
         }
 
          
     }
+    ScatterActor->ManageProgressBar(false);
 }
 

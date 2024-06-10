@@ -55,6 +55,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AddInstance(UStaticMesh* StaticMesh, FTransform Transforms);
 	void UpdateProgress(float Progress);
+	UFUNCTION(BlueprintCallable)
+	void ManageProgressBar(bool makeVisible);
+
+
 	//UFUNCTION(BlueprintCallable)
 	//void FinishScatter();
 };
