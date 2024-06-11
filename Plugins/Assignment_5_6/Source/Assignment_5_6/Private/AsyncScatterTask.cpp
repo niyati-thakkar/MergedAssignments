@@ -7,14 +7,20 @@
 
 FAsyncScatterTask::FAsyncScatterTask(AMeshGenerator* InScatterActor)
 {
-    ScatterActor = InScatterActor;
+    if (InScatterActor) {
+        ScatterActor = InScatterActor;
+    }
 
 }
 
 void FAsyncScatterTask::DoWork()
 {
-    ScatterActor->ManageProgressBar(true);
-    if (ScatterActor)
+    if(ScatterActor->IsValidLowLevel() && IsValid(ScatterActor))
+    {
+        ScatterActor->ManageProgressBar(true);
+    }
+    
+    if (ScatterActor->IsValidLowLevel() && IsValid(ScatterActor))
     {
         if (ScatterActor->MeshDataAsset && ScatterActor->SelectionArea)
         {
@@ -27,7 +33,7 @@ void FAsyncScatterTask::DoWork()
             const float Padding = 10.0f; // Example padding value
 
             
-            for (int i = 0; i < ScatterActor->NumberOfInstances; i++)
+            for (int i = 0; ScatterActor->IsValidLowLevel() && IsValid(ScatterActor) && i < ScatterActor->NumberOfInstances; i++)
             {
                 int RandomIndex = FMath::RandRange(0, StaticMeshes.Num() - 1);
                 UStaticMesh* CurrentMesh = StaticMeshes[RandomIndex];
@@ -67,14 +73,17 @@ void FAsyncScatterTask::DoWork()
                 FTransform Transform(RandomRotation, Position, RandomScale);
                 AsyncTask(ENamedThreads::GameThread, [this, i,CurrentMesh, Transform]()
                     {
+                        if(ScatterActor->IsValidLowLevel() && IsValid(ScatterActor))
+                        {
+                            ScatterActor->AddInstance(CurrentMesh, Transform);
 
-                        ScatterActor->AddInstance(CurrentMesh, Transform);
+                            float Progress = ((float)(i + 1) / static_cast<float>(ScatterActor->NumberOfInstances));
+                            ScatterActor->UpdateProgress(Progress);
+                        }
                         
-                        float Progress = ((float)(i + 1) / static_cast<float>(ScatterActor->NumberOfInstances));
-                        ScatterActor->UpdateProgress(Progress);
 
                     });
-                if(ScatterActor->NumberOfInstances < 10000){
+                if(ScatterActor->IsValidLowLevel() && IsValid(ScatterActor) && ScatterActor->NumberOfInstances < 10000){
                     FPlatformProcess::Sleep((float)2 / static_cast<float>(ScatterActor->NumberOfInstances));
                 }else
                 {
@@ -92,6 +101,8 @@ void FAsyncScatterTask::DoWork()
 
          
     }
-    ScatterActor->ManageProgressBar(false);
+    if (ScatterActor->IsValidLowLevel() && IsValid(ScatterActor)) {
+        ScatterActor->ManageProgressBar(false);
+    }
 }
 
