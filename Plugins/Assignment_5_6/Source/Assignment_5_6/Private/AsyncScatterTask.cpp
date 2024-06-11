@@ -78,7 +78,7 @@ void FAsyncScatterTask::DoWork()
                     FPlatformProcess::Sleep((float)2 / static_cast<float>(ScatterActor->NumberOfInstances));
                 }else
                 {
-                    FPlatformProcess::Sleep((float)10 / static_cast<float>(ScatterActor->NumberOfInstances));
+                    FPlatformProcess::Sleep(0.001f);
                 }
                 
                 
